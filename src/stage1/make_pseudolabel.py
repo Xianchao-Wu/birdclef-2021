@@ -31,11 +31,18 @@ from tqdm import tqdm, trange
 warnings.simplefilter("ignore")
 
 
-train_df = pd.read_csv("../../input/birdclef-2021/train_metadata.csv")
+#train_df = pd.read_csv("../../input/birdclef-2021/train_metadata.csv")
+#train_soundscape_labels = pd.read_csv(
+#    "../../input/birdclef-2021/train_soundscape_labels.csv"
+#)
+#valid_data = Path("../../input/birdclef-2021/train_soundscapes/")
+
+train_df = pd.read_csv("../../data/train_metadata.csv")
 train_soundscape_labels = pd.read_csv(
     "../../input/birdclef-2021/train_soundscape_labels.csv"
 )
 valid_data = Path("../../input/birdclef-2021/train_soundscapes/")
+
 valid_all_audios = list(valid_data.glob("*.ogg"))
 target_columns = [
     "acafly",

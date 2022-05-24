@@ -32,7 +32,8 @@ from torchaudio.transforms import AmplitudeToDB, MelSpectrogram
 warnings.simplefilter("ignore")
 
 
-train_df = pd.read_csv("../../input/birdclef-2021/train_metadata_new.csv")
+#train_df = pd.read_csv("../../input/birdclef-2021/train_metadata_new.csv")
+train_df = pd.read_csv("../../src/train_metadata_new.csv")
 target_columns = [
     "acafly",
     "acowoo",
@@ -674,10 +675,12 @@ def load_wave_and_crop(filename, period, start=None):
     return waveform_orig, waveform_seg, sample_rate, start
 
 
+#data_path: str = "../../input/birdclef-2021/train_short_audio",
+
 class BirdClef2021Dataset(Dataset):
     def __init__(
         self,
-        data_path: str = "../../input/birdclef-2021/train_short_audio",
+        data_path: str = "../../data/train_short_audio",
         period: float = 15.0,
         secondary_coef: float = 1.0,
         smooth_label: float = 0.0,
@@ -832,14 +835,14 @@ class BirdClef2021DataModule(LightningDataModule):
             help="number of CPU workers",
             dest="num_workers",
         )
-        parser.add_argument(
-            "--batch_size",
-            default=8,
-            type=int,
-            metavar="BS",
-            help="number of sample in a batch",
-            dest="batch_size",
-        )
+        #parser.add_argument(
+        #    "--batch_size",
+        #    default=8,
+        #    type=int,
+        #    metavar="BS",
+        #    help="number of sample in a batch",
+        #    dest="batch_size",
+        #)
         parser.add_argument(
             "--period",
             default=15.0,
@@ -1298,14 +1301,14 @@ class BirdClef2021Model(pl.LightningModule):
         parser.add_argument(
             "--epochs", default=10, type=int, metavar="N", help="total number of epochs"
         )
-        parser.add_argument(
-            "--batch_size",
-            default=8,
-            type=int,
-            metavar="B",
-            help="batch size",
-            dest="batch_size",
-        )
+        #parser.add_argument(
+        #    "--batch_size",
+        #    default=8,
+        #    type=int,
+        #    metavar="B",
+        #    help="batch size",
+        #    dest="batch_size",
+        #)
         parser.add_argument("--gpus", type=int, default=0, help="number of gpus to use")
         parser.add_argument(
             "--lr",
@@ -1339,14 +1342,14 @@ class BirdClef2021Model(pl.LightningModule):
             help="mixup alpha",
             dest="mixup_alpha",
         )
-        parser.add_argument(
-            "--period",
-            default=15.0,
-            type=float,
-            metavar="P",
-            help="period for training",
-            dest="period",
-        )
+        #parser.add_argument(
+        #    "--period",
+        #    default=15.0,
+        #    type=float,
+        #    metavar="P",
+        #    help="period for training",
+        #    dest="period",
+        #)
         parser.add_argument(
             "--infer_period",
             default=15.0,
@@ -1359,6 +1362,7 @@ class BirdClef2021Model(pl.LightningModule):
 
 
 def get_args() -> argparse.Namespace:
+    #import ipdb; ipdb.set_trace()
     parent_parser = argparse.ArgumentParser(add_help=False)
     parent_parser.add_argument(
         "--seed",
@@ -1385,11 +1389,13 @@ def get_args() -> argparse.Namespace:
         default=0,
     )
     parser = BirdClef2021Model.add_model_specific_args(parent_parser)
+    #import ipdb; ipdb.set_trace()
     parser = BirdClef2021DataModule.add_argparse_args(parser)
     return parser.parse_args()
 
 
 def main(args):
+    #import ipdb; ipdb.set_trace()
     pl.seed_everything(args.seed)
     assert args.fold < 4
     for i in range(4):
@@ -1445,4 +1451,5 @@ def main(args):
 
 
 if __name__ == "__main__":
+    #import ipdb; ipdb.set_trace()
     main(get_args())
