@@ -31,7 +31,8 @@ from torchaudio.transforms import AmplitudeToDB, MelSpectrogram
 warnings.simplefilter("ignore")
 
 
-train_df = pd.read_csv("../../input/birdclef-2021/train_metadata_new.csv")
+#train_df = pd.read_csv("../../input/birdclef-2021/train_metadata_new.csv")
+train_df = pd.read_csv("../../src/train_metadata_new.csv")
 target_columns = [
     "acafly",
     "acowoo",
@@ -673,13 +674,18 @@ def load_wave_and_crop(filename, period, start=None):
     return waveform_orig, waveform_seg, sample_rate, start
 
 
+#data_path: str = "../../input/birdclef-2021/train_short_audio",
+#        pseudo_label_path: list = [
+#            "../../input/birdclef-2021/pseudo_label_stage1_repvgg_b0",
+#            "../../input/birdclef-2021/pseudo_label_stage1_resnet34",
+#        ],
 class BirdClef2021Dataset(Dataset):
     def __init__(
         self,
-        data_path: str = "../../input/birdclef-2021/train_short_audio",
+        data_path: str = "../../data/train_short_audio",
         pseudo_label_path: list = [
-            "../../input/birdclef-2021/pseudo_label_stage1_repvgg_b0",
-            "../../input/birdclef-2021/pseudo_label_stage1_resnet34",
+            "../../data/pseudo_label_stage1_repvgg_b0",
+            "../../data/pseudo_label_stage1_resnet34",
         ],
         period: float = 15.0,
         secondary_coef: float = 1.0,
