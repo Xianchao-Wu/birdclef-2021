@@ -1218,9 +1218,10 @@ class BirdClef2021Model(pl.LightningModule):
         f1_score = self.thresholder.calc_score(y_pred, y_true, coef)
         f1_score_05 = self.thresholder.calc_score(y_pred, y_true, [0.5])
         f1_score_03 = self.thresholder.calc_score(y_pred, y_true, [0.3])
+        #import ipdb; ipdb.set_trace()
         self.log_dict(
             dict(
-                train_coef=coef,
+                train_coef=coef[0],
                 train_f1_score=f1_score,
                 train_f1_score_05=f1_score_05,
                 train_f1_score_03=f1_score_03,
@@ -1256,9 +1257,10 @@ class BirdClef2021Model(pl.LightningModule):
         f1_score = self.thresholder.calc_score(y_pred, y_true, coef)
         f1_score_05 = self.thresholder.calc_score(y_pred, y_true, [0.5])
         f1_score_03 = self.thresholder.calc_score(y_pred, y_true, [0.3])
+        #import ipdb; ipdb.set_trace()
         self.log_dict(
             dict(
-                val_coef=coef,
+                val_coef=coef[0],
                 val_f1_score=f1_score,
                 val_f1_score_05=f1_score_05,
                 val_f1_score_03=f1_score_03,
@@ -1442,7 +1444,7 @@ def main(args):
                 f1_checkpoint,
                 lr_monitor,
             ],
-            accelerator="ddp",
+            accelerator="ddp", #"ddp",
             fast_dev_run=args.debug,
             num_sanity_val_steps=0,
         )
