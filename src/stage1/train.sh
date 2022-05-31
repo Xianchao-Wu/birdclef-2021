@@ -1,5 +1,5 @@
-#python -m ipdb main.py --gpus 1 --batch_size 36 --epochs 50 --backbone resnet34 --period 30.0 --infer_period 30.0 --num_workers 0 --lr 1e-3 --backbone_lr 1e-4 --secondary_coef 1.0 --n_mels 128 --mixup_p 0.5 --mixup_alpha 0.8 --logdir resnet34 --fold 0 --seed 2021
-python main.py --gpus 8 --batch_size 36 --epochs 50 --backbone resnet34 --period 30.0 --infer_period 30.0 --num_workers 4 --lr 1e-3 --backbone_lr 1e-4 --secondary_coef 1.0 --n_mels 128 --mixup_p 0.5 --mixup_alpha 0.8 --logdir resnet34 --fold 0 --seed 2021
+python -m ipdb main.py --gpus 1 --batch_size 32 --epochs 50 --backbone resnet34 --period 30.0 --infer_period 30.0 --num_workers 0 --lr 1e-3 --backbone_lr 1e-4 --secondary_coef 1.0 --n_mels 128 --mixup_p 0.5 --mixup_alpha 0.8 --logdir resnet34 --fold 0 --seed 2021
+#python main.py --gpus 8 --batch_size 36 --epochs 50 --backbone resnet34 --period 30.0 --infer_period 30.0 --num_workers 4 --lr 1e-3 --backbone_lr 1e-4 --secondary_coef 1.0 --n_mels 128 --mixup_p 0.5 --mixup_alpha 0.8 --logdir resnet34 --fold 0 --seed 2021
 
 exit 1
 

@@ -679,8 +679,8 @@ class BirdClef2021Dataset(Dataset):
         self,
         data_path: str = "../../input/birdclef-2021/train_short_audio",
         pseudo_label_path: list = [
-            "../../input/birdclef-2021/pseudo_label_stage1_repvgg_b0",
-            "../../input/birdclef-2021/pseudo_label_stage1_resnet34",
+            "../../input/birdclef-2021/debug_pseudo_label_stage1_repvgg_b0",
+            "../../input/birdclef-2021/debug_pseudo_label_stage1_resnet34",
         ],
         period: float = 15.0,
         secondary_coef: float = 1.0,
@@ -1535,7 +1535,7 @@ def main(args):
                 f1_checkpoint,
                 lr_monitor,
             ],
-            accelerator="ddp",
+            accelerator="dp", #"ddp", TODO
             fast_dev_run=args.debug,
             num_sanity_val_steps=0,
         )
