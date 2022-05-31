@@ -7,7 +7,7 @@ import random
 import warnings
 
 # from copy import deepcopy
-from functools import partial
+from functools import partial # "偏函数"，类似于函数装饰器
 
 import colorednoise as cn
 import librosa
@@ -16,7 +16,7 @@ import pandas as pd
 import pytorch_lightning as pl
 import scipy as sp
 import soundfile as sf
-import timm
+import timm # pytorch image models (such as resnet34...)
 import torch
 import torch.optim as optim
 from pytorch_lightning import LightningDataModule, callbacks
@@ -687,7 +687,7 @@ class BirdClef2021Dataset(Dataset):
         df: pd.DataFrame = train_df,
         train: bool = True,
     ):
-
+        import ipdb; ipdb.set_trace()
         self.df = df
         self.data_path = data_path
         self.filenames = df["filename"]
@@ -717,7 +717,7 @@ class BirdClef2021Dataset(Dataset):
                             GaussianNoise(p=1, min_snr=5, max_snr=20),
                             PinkNoise(p=1, min_snr=5, max_snr=20),
                         ],
-                        p=0.2,
+                        p=1.0, #0.2, TODO for debug only
                     ),
                     RandomVolume(p=0.2, limit=4),
                     Normalize(p=1),
@@ -735,6 +735,7 @@ class BirdClef2021Dataset(Dataset):
         return len(self.df)
 
     def __getitem__(self, idx):
+        #import ipdb; ipdb.set_trace()
         filename = os.path.join(
             self.data_path, self.primary_label[idx], self.filenames[idx]
         )
@@ -758,7 +759,7 @@ class BirdClef2021Dataset(Dataset):
         for s in self.secondary_labels[idx]:
             if s == "rocpig1":
                 s = "rocpig"
-            if s != "" and s in bird2id.keys():
+            if s != "" and s in bird2id.keys(): # better use "s in bird2id" 
                 target[bird2id[s]] = self.secondary_coef
 
         target = torch.Tensor(target)
@@ -808,6 +809,7 @@ class BirdClef2021DataModule(LightningDataModule):
 
     def __dataloader(self, train: bool):
         """Train/validation loaders."""
+        import ipdb; ipdb.set_trace()
         dataset = self.create_dataset(train)
         return DataLoader(
             dataset=dataset,
@@ -1052,6 +1054,7 @@ class AttModel(nn.Module):
         )
 
     def forward(self, input):
+        import ipdb; ipdb.set_trace()
         feats = self.backbone(input)
         return self.head(feats[-1])
 
@@ -1076,11 +1079,16 @@ class ThresholdOptimizer:
         return -ll
 
     def fit(self, X, y):
+        # self._loss = 需要被扩展的函数，返回的"loss_partial"其实是一个“类似于self._loss的函数”
+        # * args = 需要被固定的位置参数
+        # * kwargs = 需要被固定的关键字参数
         loss_partial = partial(self._loss, X=X, y=y)
         initial_coef = [0.5]
+        # sp = scipy = science python, 最小化coef，需要反复调用loss_partial这个被封装起来的函数！
         self.coef_ = sp.optimize.minimize(
-            loss_partial, initial_coef, method="nelder-mead"
+            loss_partial, initial_coef, method="nelder-mead" # 这里相当于说，X, y都是固定的，目的是优化coef!
         )
+        # loss_partial是新构造出来的partial函数
 
     def coefficients(self):
         return self.coef_["x"]
@@ -1158,6 +1166,7 @@ class BirdClef2021Model(pl.LightningModule):
 
     def forward(self, image):
         """Forward pass. Returns logits."""
+        import ipdb; ipdb.set_trace()
         outputs = {}
         (
             outputs["logits"],
@@ -1179,6 +1188,7 @@ class BirdClef2021Model(pl.LightningModule):
         return losses
 
     def training_step(self, batch, batch_idx):
+        import ipdb; ipdb.set_trace()
         self.mixupper.init_lambda()
         step_output = {}
         image = self.model.logmelspec_extractor(batch["wave"])[:, None]
@@ -1206,6 +1216,7 @@ class BirdClef2021Model(pl.LightningModule):
         return step_output
 
     def training_epoch_end(self, training_step_outputs):
+        import ipdb; ipdb.set_trace()
         y_true = []
         y_pred = []
         for tso in training_step_outputs:
@@ -1229,6 +1240,7 @@ class BirdClef2021Model(pl.LightningModule):
         )
 
     def validation_step(self, batch, batch_idx):
+        import ipdb; ipdb.set_trace()
         step_output = {}
         image = self.model.logmelspec_extractor(batch["wave"])[:, None]
         outputs = self.forward(image)
@@ -1245,6 +1257,7 @@ class BirdClef2021Model(pl.LightningModule):
         return step_output
 
     def validation_epoch_end(self, validation_step_outputs):
+        import ipdb; ipdb.set_trace()
         y_pred = []
         y_true = []
         for vso in validation_step_outputs:
@@ -1268,6 +1281,7 @@ class BirdClef2021Model(pl.LightningModule):
         )
 
     def optimizer_step(self, *args, **kwargs):
+        import ipdb; ipdb.set_trace()
         super().optimizer_step(*args, **kwargs)
 
     def configure_optimizers(self):
@@ -1295,7 +1309,7 @@ class BirdClef2021Model(pl.LightningModule):
             default="resnet34",
             type=str,
             metavar="BK",
-            help="Name (as in ``timm``) of the feature extractor",
+            help="Name (as in ``timm``- pytorch image models) of the feature extractor",
         )
         parser.add_argument(
             "--n_mels", default=224, type=int, metavar="NM", help="nmels", dest="n_mels"
@@ -1444,7 +1458,7 @@ def main(args):
                 f1_checkpoint,
                 lr_monitor,
             ],
-            accelerator="ddp", #"ddp",
+            accelerator="dp", #"ddp",
             fast_dev_run=args.debug,
             num_sanity_val_steps=0,
         )
