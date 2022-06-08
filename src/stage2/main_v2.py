@@ -688,7 +688,7 @@ class BirdClef2021Dataset(Dataset):
         df: pd.DataFrame = train_df,
         train: bool = True,
     ):
-
+        import ipdb; ipdb.set_trace() # with TODO pseudo_label_path!
         self.df = df
         self.data_path = data_path
         self.pseudo_label_path = pseudo_label_path
@@ -738,6 +738,7 @@ class BirdClef2021Dataset(Dataset):
         return len(self.df)
 
     def __getitem__(self, idx):
+        import ipdb; ipdb.set_trace()
         filename = os.path.join(
             self.data_path, self.primary_label[idx], self.filenames[idx]
         )
@@ -763,7 +764,7 @@ class BirdClef2021Dataset(Dataset):
                 s = "rocpig"
             if s != "" and s in bird2id.keys():
                 target[bird2id[s]] = self.secondary_coef
-
+        import ipdb; ipdb.set_trace() # TODO pseudo_label related!
         pl_filename_att = os.path.join(
             self.pseudo_label_path[0],
             self.primary_label[idx],
@@ -931,14 +932,14 @@ class BirdClef2021DataModule(LightningDataModule):
             help="number of CPU workers",
             dest="num_workers",
         )
-        parser.add_argument(
-            "--batch_size",
-            default=8,
-            type=int,
-            metavar="BS",
-            help="number of sample in a batch",
-            dest="batch_size",
-        )
+        #parser.add_argument(
+        #    "--batch_size",
+        #    default=8,
+        #    type=int,
+        #    metavar="BS",
+        #    help="number of sample in a batch",
+        #    dest="batch_size",
+        #)
         parser.add_argument(
             "--period",
             default=15.0,
@@ -1316,7 +1317,7 @@ class BirdClef2021Model(pl.LightningModule):
         f1_score_03 = self.thresholder.calc_score(y_pred, y_true, [0.3])
         self.log_dict(
             dict(
-                train_coef=coef,
+                train_coef=coef[0],
                 train_f1_score=f1_score,
                 train_f1_score_05=f1_score_05,
                 train_f1_score_03=f1_score_03,
@@ -1354,7 +1355,7 @@ class BirdClef2021Model(pl.LightningModule):
         f1_score_03 = self.thresholder.calc_score(y_pred, y_true, [0.3])
         self.log_dict(
             dict(
-                val_coef=coef,
+                val_coef=coef[0],
                 val_f1_score=f1_score,
                 val_f1_score_05=f1_score_05,
                 val_f1_score_03=f1_score_03,
@@ -1397,14 +1398,14 @@ class BirdClef2021Model(pl.LightningModule):
         parser.add_argument(
             "--epochs", default=10, type=int, metavar="N", help="total number of epochs"
         )
-        parser.add_argument(
-            "--batch_size",
-            default=8,
-            type=int,
-            metavar="B",
-            help="batch size",
-            dest="batch_size",
-        )
+        #parser.add_argument(
+        #    "--batch_size",
+        #    default=8,
+        #    type=int,
+        #    metavar="B",
+        #    help="batch size",
+        #    dest="batch_size",
+        #)
         parser.add_argument("--gpus", type=int, default=0, help="number of gpus to use")
         parser.add_argument(
             "--lr",
@@ -1438,14 +1439,14 @@ class BirdClef2021Model(pl.LightningModule):
             help="mixup alpha",
             dest="mixup_alpha",
         )
-        parser.add_argument(
-            "--period",
-            default=15.0,
-            type=float,
-            metavar="P",
-            help="period for training",
-            dest="period",
-        )
+        #parser.add_argument(
+        #    "--period",
+        #    default=15.0,
+        #    type=float,
+        #    metavar="P",
+        #    help="period for training",
+        #    dest="period",
+        #)
         parser.add_argument(
             "--infer_period",
             default=15.0,
@@ -1489,6 +1490,7 @@ def get_args() -> argparse.Namespace:
 
 
 def main(args):
+    import ipdb; ipdb.set_trace()
     pl.seed_everything(args.seed)
     assert args.fold < 4
     for i in range(4):
