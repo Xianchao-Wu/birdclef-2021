@@ -1537,7 +1537,7 @@ def main(args):
                 f1_checkpoint,
                 lr_monitor,
             ],
-            accelerator="dp", #"ddp", TODO
+            accelerator="ddp", #"ddp", TODO
             fast_dev_run=args.debug,
             num_sanity_val_steps=0,
         )

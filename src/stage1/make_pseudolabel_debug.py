@@ -861,8 +861,9 @@ def load_model(
     num_class=397,
     train_period=30,
     infer_pred=5,
+    gpu_id="0",
 ):
-    device = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:{}".format(gpu_id) if torch.cuda.is_available() else "cpu")
     model = Model(
         backbone_name,
         p=0.5, # p=p
@@ -871,30 +872,30 @@ def load_model(
         train_period=30, # train_period = train_period
         infer_period=5, # infer_period = infer_period TODO the input parameters are currently not used...
     )
-    model = prepare_model_for_inference(model, weight_path).to(device)
+    model = prepare_model_for_inference(model, weight_path, gpu_id=gpu_id).to(device)
     #import ipdb; ipdb.set_trace()
     model = model.model
     return model
 
 
-def prepare_model_for_inference(model, path: Path):
+def prepare_model_for_inference(model, path: Path, gpu_id="0"):
     if not torch.cuda.is_available():
         ckpt = torch.load(path, map_location="cpu")
     else:
-        ckpt = torch.load(path, map_location=torch.device("cuda:2"))
+        ckpt = torch.load(path, map_location=torch.device("cuda:{}".format(gpu_id)))
     model.load_state_dict(ckpt["state_dict"])
     model.eval()
     return model
 
 
-def prediction_for_clip(test_df: pd.DataFrame, clip: np.ndarray, models):
+def prediction_for_clip(test_df: pd.DataFrame, clip: np.ndarray, models, gpu_id="0"):
     dataset = SoundscapeDataset(
         df=test_df,
         clip=clip,
         train_period=30,
     )
     loader = DataLoader(dataset, batch_size=1, shuffle=False)
-    device = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:{}".format(gpu_id) if torch.cuda.is_available() else "cpu")
     probas = []
     targets = []
     for image, row_id, target in tqdm(loader):
@@ -930,7 +931,7 @@ def prediction(test_audios, models_cfg):
 
         test_df = pd.DataFrame({"row_id": row_ids, "seconds": seconds})
         probas_clip, targets_clip = prediction_for_clip(
-            test_df, clip=clip, models=models
+            test_df, clip=clip, models=models, gpu_id=models_cfg[0]['gpu_id']
         )
         probas.append(probas_clip)
         targets.append(targets_clip)
@@ -964,6 +965,10 @@ def get_args() -> argparse.Namespace:
         "--weight_stage1",
         default="resnet34",
     )
+    parser.add_argument(
+        "--gpu_id",
+        default="0",
+    )
     return parser.parse_args()
 
 
@@ -984,14 +989,18 @@ def main(args):
             num_class=397,
             train_period=30,
             infer_pred=5,
+            gpu_id=args.gpu_id,
         )
         for weight_path in weight_paths
     ]
     coef, models = prediction(test_audios=valid_all_audios, models_cfg=models_cfg)
-    device = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
+    
+    device = torch.device("cuda:{}".format(args.gpu_id) if torch.cuda.is_available() else "cpu")
     for i, (trn_idx, val_idx) in enumerate(
         splitter.split(train_df, y=train_df["primary_label"])
     ):
+        if i == 0 or i == 1:
+            continue # TODO temp change
         model = models[i]
         model.head.infer_period = model.head.train_period
         valid_df_fold = train_df.loc[val_idx, :].reset_index(drop=True)
